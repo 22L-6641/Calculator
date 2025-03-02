@@ -66,16 +66,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         } else if (buttonText.equals("=")) {
             calculateResult();
+        } else if (buttonText.equals("x²")) {
+            applySquare();
+        } else if (buttonText.equals("√x")) {
+            applySquareRoot();
+        } else if (buttonText.equals("1/x")) {
+            applyReciprocal();
         } else {
             expression.append(buttonText);
             ressoltv.setText(expression.toString());
         }
     }
 
-
     private void calculateResult() {
         try {
-            // Convert special characters into JavaScript-compatible operators
             String expressionStr = expression.toString();
             expressionStr = expressionStr.replace("×", "*").replace("÷", "/");
 
@@ -83,19 +87,66 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             rhino.setOptimizationLevel(-1);
             Scriptable scope = rhino.initStandardObjects();
 
-            // Evaluate the fixed expression
             String result = rhino.evaluateString(scope, expressionStr, "JavaScript", 1, null).toString();
 
             if (result.endsWith(".0")) {
-                result = result.replace(".0", ""); // Remove unnecessary ".0" for whole numbers
+                result = result.replace(".0", "");
             }
 
-            // Update the expression and display the result
             expression.setLength(0);
             expression.append(result);
             ressoltv.setText(result);
 
             Context.exit();
+        } catch (Exception e) {
+            ressoltv.setText("Error");
+            expression.setLength(0);
+        }
+    }
+
+    private void applySquare() {
+        try {
+            double value = Double.parseDouble(expression.toString());
+            double squared = value * value;
+            expression.setLength(0);
+            expression.append(squared);
+            ressoltv.setText(String.valueOf(squared));
+        } catch (Exception e) {
+            ressoltv.setText("Error");
+            expression.setLength(0);
+        }
+    }
+
+    private void applySquareRoot() {
+        try {
+            double value = Double.parseDouble(expression.toString());
+            if (value < 0) {
+                ressoltv.setText("Error");
+                expression.setLength(0);
+                return;
+            }
+            double sqrtValue = Math.sqrt(value);
+            expression.setLength(0);
+            expression.append(sqrtValue);
+            ressoltv.setText(String.valueOf(sqrtValue));
+        } catch (Exception e) {
+            ressoltv.setText("Error");
+            expression.setLength(0);
+        }
+    }
+
+    private void applyReciprocal() {
+        try {
+            double value = Double.parseDouble(expression.toString());
+            if (value == 0) {
+                ressoltv.setText("Error");
+                expression.setLength(0);
+                return;
+            }
+            double reciprocal = 1 / value;
+            expression.setLength(0);
+            expression.append(reciprocal);
+            ressoltv.setText(String.valueOf(reciprocal));
         } catch (Exception e) {
             ressoltv.setText("Error");
             expression.setLength(0);
